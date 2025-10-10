@@ -45,6 +45,7 @@ cd ${sim_dir}
 parse_config_file ${conf_file} "sim_config_general"
 
 lreal=${lreal:-true}
+lcpbin=${lcpbin:-true}
 simrstm1_dir=${simrstm1_dir:-${rst_dir}/${caseid}$(date -u -d "${datem1}" +%Y%m%d)}
 
 ####################
@@ -53,6 +54,9 @@ simrstm1_dir=${simrstm1_dir:-${rst_dir}/${caseid}$(date -u -d "${datem1}" +%Y%m%
 if [[ "${modelid}" == *icon* ]]; then
 
   parse_config_file ${conf_file} "sim_config_icon"
+
+  # copy executeable
+  [[ "$lcpbin" == "true" ]] && cp $tsmp2_install_dir/bin/icon icon
 
   # set defaults
   icon_latbc_dir=${icon_latbc_dir:-${frc_dir}/icon/latbc/$(date -u -d "${startdate}" +%Y%m)}
@@ -81,10 +85,6 @@ if [[ "${modelid}" == *icon* ]]; then
       fini_icon=multifile_restart_ATMO.mfr
     fi
   fi
-
-# link executeable (will be replaced with copy in production)
-#  ln -sf $tsmp2_install_dir/bin/icon icon
-  cp $tsmp2_install_dir/bin/icon icon
 
 # copy namelist
   cp ${nml_dir}/icon/NAMELIST_icon NAMELIST_icon
@@ -131,6 +131,9 @@ if [[ "${modelid}" == *clm* ]]; then
 
   parse_config_file ${conf_file} "sim_config_clm"
 
+# copy executeable
+  [[ "$lcpbin" == "true" ]] && cp $tsmp2_install_dir/bin/eclm.exe eclm
+
 # set defaults
   geo_dir_clm=${geo_dir_clm:-${geo_dir}/eclm/static}
   clm_tsp=${clm_tsp:-${cpltsp_atmsfc}}
@@ -138,16 +141,9 @@ if [[ "${modelid}" == *clm* ]]; then
   clmoutmfilt=${clmoutmfilt:-24} # number of tsp in out
   clmoutvar=${clmoutvar:-'TG'}
 #
-#  domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_landlake_halo.nc
-#  surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil_halo.nc
-#  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
   topofile_clm=${topofile_clm:-topodata_0.9x1.25_USGS_070110_stream_c151201.nc}
   fini_clm=${fini_clm:-${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc}
   clm_frc_dir=${clm_frc_dir:-${frc_dir}/eclm/forcing/}
-
-# link executeable
-#  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
-  cp $tsmp2_install_dir/bin/eclm.exe eclm
 
 # calculation for automated adjustment of clm forcing
 #  forcedate=$(date '+%s' -d "${datep1} + 1 month - 1 day")
@@ -216,9 +212,8 @@ if [[ "${modelid}" == *parflow* ]]; then
 #
   fini_pfl=${fini_pfl:-${simrstm1_dir}/parflow/${EXP_ID}.out.${dateshort}.nc}
 
-# link executeable
-#  ln -sf $tsmp2_install_dir/bin/parflow parflow
-  cp $tsmp2_install_dir/bin/parflow parflow
+# copy executeable
+  [[ "$lcpbin" == "true" ]] && cp $tsmp2_install_dir/bin/parflow parflow
 
 #  set defaults
   parflow_tsp=${parflow_tsp:-$(echo "$cpltsp_sfcss / 3600" | bc -l)}
